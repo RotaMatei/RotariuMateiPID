@@ -498,12 +498,12 @@ namespace Framework.ViewModel.Commands
 
             if (GrayInitialImage != null)
             {
-                GrayProcessedImage = Tools.Binary(GrayInitialImage, (byte)threshold);
+                GrayProcessedImage = Tools.ApplyLUT(GrayInitialImage, (byte)threshold);
             }
             else
             {
                 var grayImage = Tools.Convert(ColorInitialImage);
-                GrayProcessedImage = Tools.Binary(grayImage, (byte)threshold);
+                GrayProcessedImage = Tools.ApplyLUT(grayImage, (byte)threshold);
             }
         }
         #endregion
@@ -682,6 +682,52 @@ namespace Framework.ViewModel.Commands
         #endregion
 
         #region Pointwise operations
+        #endregion
+
+        #region Contrast and brightness 
+
+        private ICommand _brightnessAndContrastCommand;
+        public ICommand BrightnessAndContrastCommand
+        {
+            get
+            {
+                if (_brightnessAndContrastCommand == null)
+                    _brightnessAndContrastCommand = new RelayCommand(BrightnessAndContrast);
+                return _brightnessAndContrastCommand;
+            }
+        }
+
+        private void BrightnessAndContrast(object parameter)
+        {
+            if (!IsImageLoaded())
+                return;
+
+            List<string> labels = new List<string>
+            {
+                "alpha: ",
+                "beta: "
+            };
+            DialogWindow window = new DialogWindow(_mainVM, labels);
+            window.ShowDialog();
+            List<double> values = window.GetValues();
+            if (values == null)
+                return;
+            double alpha = values[0];
+            double beta = values[1];
+            if (alpha <= 0) return;
+
+            ClearProcessedCanvas(parameter);
+            byte[] LUT = PointwiseOperations.ContrastAndBrightness(alpha, beta);
+
+            if (GrayInitialImage != null)
+            {
+                GrayProcessedImage = PointwiseOperations.ApplyLUT(GrayInitialImage, LUT);
+            }
+            else
+            {
+                ColorProcessedImage = PointwiseOperations.ApplyLUT(ColorInitialImage, LUT);
+            }
+        }
         #endregion
 
         #region Thresholding

@@ -162,7 +162,17 @@
 
             <MenuItem Header="Pointwise operations"
                       Background="{Binding Path=Theme.MenuItemBackgroundColor}"
-                      Foreground="{Binding Path=Theme.MenuItemForegroundColor}">
+                      Foreground="{Binding Path=Theme.MenuItemForegroundColor}"
+                      Command="{Binding Path=MenuCommands.RotateClockwiseCommand}"
+                      CommandParameter="{Binding ElementName=processedImageCanvas}">
+
+            </MenuItem>
+
+            <MenuItem Header="BrightnessAndContrast operations"
+                      Background="{Binding Path=Theme.MenuItemBackgroundColor}"
+                      Foreground="{Binding Path=Theme.MenuItemForegroundColor}"
+                      Command="{Binding Path=MenuCommands.BrightnessAndContrastCommand}"
+                      CommandParameter="{Binding ElementName=processedImageCanvas}">
 
             </MenuItem>
 

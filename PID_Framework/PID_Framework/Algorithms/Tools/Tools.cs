@@ -60,7 +60,7 @@ namespace Algorithms.Tools
         #endregion
 
         #region Binary
-        public static Image<Gray, byte> Binary(Image<Gray, byte> inputImage, byte threshold = 128)
+        public static Image<Gray, byte> ApplyLUT(Image<Gray, byte> inputImage, byte threshold = 128)
         {
             Image<Gray, byte> result = new Image<Gray, byte>(inputImage.Size);
 
