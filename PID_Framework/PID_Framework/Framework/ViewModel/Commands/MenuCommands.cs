@@ -373,6 +373,46 @@ namespace Framework.ViewModel.Commands
         }
         #endregion
 
+        #region Initial image normalized histogram
+        private ICommand _normalizedHistogramInitialImageCommand;
+        public ICommand NormalizedHistogramInitialImageCommand
+        {
+            get
+            {
+                if (_normalizedHistogramInitialImageCommand == null)
+                    _normalizedHistogramInitialImageCommand = new RelayCommand(NormalizedHistogramInitialImage);
+                return _normalizedHistogramInitialImageCommand;
+            }
+        }
+
+        private void NormalizedHistogramInitialImage(object parameter)
+        {
+            if (!IsImageLoaded())
+                return;
+
+            var histograms = new List<(double[] Histogram, string PlotColor)>();
+            string title;
+
+            if (GrayInitialImage != null)
+            {
+                title = "Grayscale - Initial Image Normalized Histogram";
+                histograms.Add((Utils.ComputeNormalizedHistogram(GrayInitialImage), Brushes.Black.ToString()));
+            }
+            else
+            {
+                title = "Color - Initial Image Normalized Histogram";
+                string[] colors = { Brushes.Blue.ToString(), Brushes.Green.ToString(), Brushes.Red.ToString() };
+                for (int channel = 0; channel < 3; ++channel)
+                {
+                    using (Image<Gray, byte> channelImage = ColorInitialImage[channel])
+                        histograms.Add((Utils.ComputeNormalizedHistogram(channelImage), colors[channel]));
+                }
+            }
+
+            new HistogramWindow(_mainVM, title, histograms).Show();
+        }
+        #endregion
+
         #endregion
 
         #region Copy image
@@ -682,6 +722,54 @@ namespace Framework.ViewModel.Commands
         #endregion
 
         #region Pointwise operations
+
+        #region Gamma operator
+        private ICommand _gammaOperatorCommand;
+        public ICommand GammaOperatorCommand
+        {
+            get
+            {
+                if (_gammaOperatorCommand == null)
+                    _gammaOperatorCommand = new RelayCommand(GammaOperator);
+                return _gammaOperatorCommand;
+            }
+        }
+
+        private void GammaOperator(object parameter)
+        {
+            if (!IsImageLoaded())
+                return;
+
+            List<string> labels = new List<string>
+            {
+                "gamma: "
+            };
+            DialogWindow window = new DialogWindow(_mainVM, labels);
+            window.ShowDialog();
+            List<double> values = window.GetValues();
+            if (values == null)
+                return;
+            double gamma = values[0];
+            if (gamma <= 0)
+            {
+                MessageBox.Show("Gamma must be a strictly positive value!");
+                return;
+            }
+
+            ClearProcessedCanvas(parameter);
+            byte[] LUT = PointwiseOperations.Gamma(gamma);
+
+            if (GrayInitialImage != null)
+            {
+                GrayProcessedImage = PointwiseOperations.ApplyLUT(GrayInitialImage, LUT);
+            }
+            else
+            {
+                ColorProcessedImage = PointwiseOperations.ApplyLUT(ColorInitialImage, LUT);
+            }
+        }
+        #endregion
+
         #endregion
 
         #region Contrast and brightness 

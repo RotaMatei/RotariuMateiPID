@@ -21,5 +21,22 @@ namespace Algorithms.Utilities
             return histogram;
         }
         #endregion
+
+        #region Compute normalized histogram
+        // Each value is the probability of the gray level: h(i) / (width * height)
+        public static double[] ComputeNormalizedHistogram(Image<Gray, byte> inputImage)
+        {
+            int[] histogram = ComputeHistogram(inputImage);
+            double pixels = (double)inputImage.Width * inputImage.Height;
+
+            double[] normalizedHistogram = new double[256];
+            for (int i = 0; i < 256; ++i)
+            {
+                normalizedHistogram[i] = histogram[i] / pixels;
+            }
+
+            return normalizedHistogram;
+        }
+        #endregion
     }
 }

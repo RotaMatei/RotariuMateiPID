@@ -128,6 +128,8 @@
                               Command="{Binding Path=MenuCommands.HistogramInitialImageCommand}"/>
                     <MenuItem Header="Processed image histogram"
                               Command="{Binding Path=MenuCommands.HistogramProcessedImageCommand}"/>
+                    <MenuItem Header="Initial image normalized histogram"
+                              Command="{Binding Path=MenuCommands.NormalizedHistogramInitialImageCommand}"/>
                 </MenuItem>
                 <Separator/>
                 <MenuItem Header="Copy" 
@@ -162,10 +164,10 @@
 
             <MenuItem Header="Pointwise operations"
                       Background="{Binding Path=Theme.MenuItemBackgroundColor}"
-                      Foreground="{Binding Path=Theme.MenuItemForegroundColor}"
-                      Command="{Binding Path=MenuCommands.RotateClockwiseCommand}"
-                      CommandParameter="{Binding ElementName=processedImageCanvas}">
-
+                      Foreground="{Binding Path=Theme.MenuItemForegroundColor}">
+                <MenuItem Header="Gamma operator"
+                          Command="{Binding Path=MenuCommands.GammaOperatorCommand}"
+                          CommandParameter="{Binding ElementName=processedImageCanvas}"/>
             </MenuItem>
 
             <MenuItem Header="BrightnessAndContrast operations"

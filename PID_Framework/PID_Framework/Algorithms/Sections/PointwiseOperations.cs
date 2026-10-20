@@ -54,8 +54,19 @@ namespace Algorithms.Sections
         }
         #endregion
 
-        #region Pointwise Operation
-
+        #region Gamma operator
+        // s = c * r^gamma, with c = 255^(1 - gamma) so that 0 and 255 are left unchanged
+        public static byte[] Gamma(double gamma)
+        {
+            byte[] LUT = new byte[256];
+            double c = Math.Pow(255, 1 - gamma);
+            for (int r = 0; r < 256; r++)
+            {
+                double s = c * Math.Pow(r, gamma);
+                LUT[r] = (byte)Math.Max(0, Math.Min(255, Math.Round(s)));
+            }
+            return LUT;
+        }
         #endregion
     }
 }
