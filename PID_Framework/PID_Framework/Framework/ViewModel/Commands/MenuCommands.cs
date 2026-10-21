@@ -819,6 +819,38 @@ namespace Framework.ViewModel.Commands
         #endregion
 
         #region Thresholding
+        private ICommand _intermeansThresholdingCommand;
+        public ICommand IntermeansThresholdingCommand
+        {
+            get
+            {
+                if (_intermeansThresholdingCommand == null)
+                    _intermeansThresholdingCommand = new RelayCommand(IntermeansThresholding);
+                return _intermeansThresholdingCommand;
+            }
+        }
+
+        private void IntermeansThresholding(object parameter)
+        {
+            if (!IsImageLoaded())
+                return;
+
+            ClearProcessedCanvas(parameter);
+
+            if (GrayInitialImage != null)
+            {
+                byte threshold = Thresholding.IntermeansThresholding(GrayInitialImage);
+                Console.WriteLine(threshold);
+                GrayProcessedImage = Tools.ApplyLUT(GrayInitialImage, (byte)threshold);
+            }
+            else
+            {
+                var grayImage = Tools.Convert(ColorInitialImage);
+                byte threshold = Thresholding.IntermeansThresholding(grayImage);
+                Console.WriteLine(threshold);
+                GrayProcessedImage = Tools.ApplyLUT(grayImage, (byte)threshold);
+            }
+        }
         #endregion
 
         #region Filters
