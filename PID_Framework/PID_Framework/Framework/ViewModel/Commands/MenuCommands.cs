@@ -854,6 +854,184 @@ namespace Framework.ViewModel.Commands
         #endregion
 
         #region Filters
+        #region Rectangular filter 1
+        private ICommand _rectangularFilter1Command;
+        public ICommand RectangularFilter1Command
+        {
+            get
+            {
+                if (_rectangularFilter1Command == null)
+                    _rectangularFilter1Command = new RelayCommand(RectangularFilter1);
+                return _rectangularFilter1Command;
+            }
+        }   
+
+        private void RectangularFilter1(object parameter)
+        {
+            if (!IsImageLoaded())
+                return;
+
+            //List<string> labels = new List<string>
+            //{
+            //    "Width: ",
+            //    "Height: ",
+            //};
+            //DialogWindow window = new DialogWindow(_mainVM, labels);
+            //window.ShowDialog();
+            //List<double> values = window.GetValues();
+            //if (values == null)
+            //    return;
+            double[,] mask1 = new double[1, 3]
+            {
+                {
+                    0.25,
+                    0.5,
+                    0.25
+                }
+            };
+
+            double[,] mask2 = new double[3,1]
+            {
+                { 0.25 },
+                { 0.5 },
+                { 0.25 }
+            };
+
+            ClearProcessedCanvas(parameter);
+
+            if (GrayInitialImage != null)
+            {
+                GrayProcessedImage = Filters.RectangularFilter(GrayInitialImage, mask1);
+                GrayProcessedImage = Filters.RectangularFilter(GrayProcessedImage, mask2);
+            }
+            else
+            {
+                var grayImage = Tools.Convert(ColorInitialImage);
+                GrayProcessedImage = Filters.RectangularFilter(grayImage, mask1);
+                GrayProcessedImage = Filters.RectangularFilter(GrayProcessedImage, mask2);
+            }
+        }
+        #endregion
+
+        #region Rectangular filter 2
+        private ICommand _rectangularFilter2Command;
+        public ICommand RectangularFilter2Command
+        {
+            get
+            {
+                if (_rectangularFilter2Command == null)
+                    _rectangularFilter2Command = new RelayCommand(RectangularFilter2);
+                return _rectangularFilter2Command;
+            }
+        }
+
+        private void RectangularFilter2(object parameter)
+        {
+            if (!IsImageLoaded())
+                return;
+
+            //List<string> labels = new List<string>
+            //{
+            //    "Width: ",
+            //    "Height: ",
+            //};
+            //DialogWindow window = new DialogWindow(_mainVM, labels);
+            //window.ShowDialog();
+            //List<double> values = window.GetValues();
+            //if (values == null)
+            //    return;
+            double[,] mask1 = new double[3, 3]
+            {
+                {
+                    0.1,
+                    0.1,
+                    0.1
+                },
+                {
+                    0.1,
+                    0.2,
+                    0.1
+                },
+                {
+                    0.1,
+                    0.1,
+                    0.1
+                },
+            };
+
+            ClearProcessedCanvas(parameter);
+
+            if (GrayInitialImage != null)
+            {
+                GrayProcessedImage = Filters.RectangularFilter(GrayInitialImage, mask1);
+            }
+            else
+            {
+                var grayImage = Tools.Convert(ColorInitialImage);
+                GrayProcessedImage = Filters.RectangularFilter(grayImage, mask1);
+            }
+        }
+        #endregion
+
+        #region Rectangular filter 3
+        private ICommand _rectangularFilter3Command;
+        public ICommand RectangularFilter3Command
+        {
+            get
+            {
+                if (_rectangularFilter3Command == null)
+                    _rectangularFilter3Command = new RelayCommand(RectangularFilter3);
+                return _rectangularFilter3Command;
+            }
+        }
+
+        private void RectangularFilter3(object parameter)
+        {
+            if (!IsImageLoaded())
+                return;
+
+            //List<string> labels = new List<string>
+            //{
+            //    "Width: ",
+            //    "Height: ",
+            //};
+            //DialogWindow window = new DialogWindow(_mainVM, labels);
+            //window.ShowDialog();
+            //List<double> values = window.GetValues();
+            //if (values == null)
+            //    return;
+            double[,] mask1 = new double[3, 3]
+            {
+                {
+                    0,
+                    -1,
+                    0
+                },
+                {
+                    -1,
+                    5,
+                    -1
+                },
+                {
+                    0,
+                    -1,
+                    0
+                },
+            };
+
+            ClearProcessedCanvas(parameter);
+
+            if (GrayInitialImage != null)
+            {
+                GrayProcessedImage = Filters.RectangularFilter(GrayInitialImage, mask1);
+            }
+            else
+            {
+                var grayImage = Tools.Convert(ColorInitialImage);
+                GrayProcessedImage = Filters.RectangularFilter(grayImage, mask1);
+            }
+        }
+        #endregion
         #endregion
 
         #region Morphological operations

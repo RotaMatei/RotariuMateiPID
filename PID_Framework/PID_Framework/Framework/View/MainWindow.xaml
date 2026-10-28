@@ -189,6 +189,17 @@
             <MenuItem Header="Filters" 
                       Background="{Binding Path=Theme.MenuItemBackgroundColor}"
                       Foreground="{Binding Path=Theme.MenuItemForegroundColor}">
+                <MenuItem Header="Custom">
+                    <MenuItem Header="Rectangular1"
+                          Command="{Binding Path=MenuCommands.RectangularFilter1Command}"
+                          CommandParameter="{Binding ElementName=processedImageCanvas}"/>
+                    <MenuItem Header="Rectangular2"
+                          Command="{Binding Path=MenuCommands.RectangularFilter2Command}"
+                          CommandParameter="{Binding ElementName=processedImageCanvas}"/>
+                    <MenuItem Header="Rectangular3"
+                          Command="{Binding Path=MenuCommands.RectangularFilter3Command}"
+                          CommandParameter="{Binding ElementName=processedImageCanvas}"/>
+                </MenuItem>
                 <MenuItem Header="Low-pass">
 
                 </MenuItem>
