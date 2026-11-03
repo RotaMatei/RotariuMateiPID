@@ -854,184 +854,110 @@ namespace Framework.ViewModel.Commands
         #endregion
 
         #region Filters
-        #region Rectangular filter 1
-        private ICommand _rectangularFilter1Command;
-        public ICommand RectangularFilter1Command
+
+        #region Custom filter
+
+        #region Separable filter
+        private ICommand _separableFilterCommand;
+        public ICommand SeparableFilterCommand
         {
             get
             {
-                if (_rectangularFilter1Command == null)
-                    _rectangularFilter1Command = new RelayCommand(RectangularFilter1);
-                return _rectangularFilter1Command;
+                if (_separableFilterCommand == null)
+                    _separableFilterCommand = new RelayCommand(SeparableFilter);
+                return _separableFilterCommand;
             }
-        }   
+        }
 
-        private void RectangularFilter1(object parameter)
+        private void SeparableFilter(object parameter)
         {
             if (!IsImageLoaded())
                 return;
 
-            //List<string> labels = new List<string>
-            //{
-            //    "Width: ",
-            //    "Height: ",
-            //};
-            //DialogWindow window = new DialogWindow(_mainVM, labels);
-            //window.ShowDialog();
-            //List<double> values = window.GetValues();
-            //if (values == null)
-            //    return;
-            double[,] mask1 = new double[1, 3]
-            {
-                {
-                    0.25,
-                    0.5,
-                    0.25
-                }
-            };
-
-            double[,] mask2 = new double[3,1]
-            {
-                { 0.25 },
-                { 0.5 },
-                { 0.25 }
-            };
+            double[] v = { 0.25, 0.5, 0.25 };
 
             ClearProcessedCanvas(parameter);
 
             if (GrayInitialImage != null)
             {
-                GrayProcessedImage = Filters.RectangularFilter(GrayInitialImage, mask1);
-                GrayProcessedImage = Filters.RectangularFilter(GrayProcessedImage, mask2);
+                GrayProcessedImage = Filters.ApplySeparableFilter(GrayInitialImage, v);
             }
             else
             {
-                var grayImage = Tools.Convert(ColorInitialImage);
-                GrayProcessedImage = Filters.RectangularFilter(grayImage, mask1);
-                GrayProcessedImage = Filters.RectangularFilter(GrayProcessedImage, mask2);
+                ColorProcessedImage = Filters.ApplySeparableFilter(ColorInitialImage, v);
             }
         }
         #endregion
 
-        #region Rectangular filter 2
-        private ICommand _rectangularFilter2Command;
-        public ICommand RectangularFilter2Command
+        #region Square filter 1
+        private ICommand _squareFilter1Command;
+        public ICommand SquareFilter1Command
         {
             get
             {
-                if (_rectangularFilter2Command == null)
-                    _rectangularFilter2Command = new RelayCommand(RectangularFilter2);
-                return _rectangularFilter2Command;
+                if (_squareFilter1Command == null)
+                    _squareFilter1Command = new RelayCommand(SquareFilter1);
+                return _squareFilter1Command;
             }
         }
 
-        private void RectangularFilter2(object parameter)
+        private void SquareFilter1(object parameter)
+        {
+            double[,] mask = new double[3, 3]
+            {
+                { 0.1, 0.1, 0.1 },
+                { 0.1, 0.2, 0.1 },
+                { 0.1, 0.1, 0.1 }
+            };
+
+            CustomFilter(parameter, mask);
+        }
+        #endregion
+
+        #region Square filter 2
+        private ICommand _squareFilter2Command;
+        public ICommand SquareFilter2Command
+        {
+            get
+            {
+                if (_squareFilter2Command == null)
+                    _squareFilter2Command = new RelayCommand(SquareFilter2);
+                return _squareFilter2Command;
+            }
+        }
+
+        private void SquareFilter2(object parameter)
+        {
+            double[,] mask = new double[3, 3]
+            {
+                {  0, -1,  0 },
+                { -1,  5, -1 },
+                {  0, -1,  0 }
+            };
+
+            CustomFilter(parameter, mask);
+        }
+        #endregion
+
+        private void CustomFilter(object parameter, double[,] mask)
         {
             if (!IsImageLoaded())
                 return;
-
-            //List<string> labels = new List<string>
-            //{
-            //    "Width: ",
-            //    "Height: ",
-            //};
-            //DialogWindow window = new DialogWindow(_mainVM, labels);
-            //window.ShowDialog();
-            //List<double> values = window.GetValues();
-            //if (values == null)
-            //    return;
-            double[,] mask1 = new double[3, 3]
-            {
-                {
-                    0.1,
-                    0.1,
-                    0.1
-                },
-                {
-                    0.1,
-                    0.2,
-                    0.1
-                },
-                {
-                    0.1,
-                    0.1,
-                    0.1
-                },
-            };
 
             ClearProcessedCanvas(parameter);
 
             if (GrayInitialImage != null)
             {
-                GrayProcessedImage = Filters.RectangularFilter(GrayInitialImage, mask1);
+                GrayProcessedImage = Filters.ApplyFilter(GrayInitialImage, mask);
             }
             else
             {
-                var grayImage = Tools.Convert(ColorInitialImage);
-                GrayProcessedImage = Filters.RectangularFilter(grayImage, mask1);
+                ColorProcessedImage = Filters.ApplyFilter(ColorInitialImage, mask);
             }
         }
+
         #endregion
 
-        #region Rectangular filter 3
-        private ICommand _rectangularFilter3Command;
-        public ICommand RectangularFilter3Command
-        {
-            get
-            {
-                if (_rectangularFilter3Command == null)
-                    _rectangularFilter3Command = new RelayCommand(RectangularFilter3);
-                return _rectangularFilter3Command;
-            }
-        }
-
-        private void RectangularFilter3(object parameter)
-        {
-            if (!IsImageLoaded())
-                return;
-
-            //List<string> labels = new List<string>
-            //{
-            //    "Width: ",
-            //    "Height: ",
-            //};
-            //DialogWindow window = new DialogWindow(_mainVM, labels);
-            //window.ShowDialog();
-            //List<double> values = window.GetValues();
-            //if (values == null)
-            //    return;
-            double[,] mask1 = new double[3, 3]
-            {
-                {
-                    0,
-                    -1,
-                    0
-                },
-                {
-                    -1,
-                    5,
-                    -1
-                },
-                {
-                    0,
-                    -1,
-                    0
-                },
-            };
-
-            ClearProcessedCanvas(parameter);
-
-            if (GrayInitialImage != null)
-            {
-                GrayProcessedImage = Filters.RectangularFilter(GrayInitialImage, mask1);
-            }
-            else
-            {
-                var grayImage = Tools.Convert(ColorInitialImage);
-                GrayProcessedImage = Filters.RectangularFilter(grayImage, mask1);
-            }
-        }
-        #endregion
         #endregion
 
         #region Morphological operations
