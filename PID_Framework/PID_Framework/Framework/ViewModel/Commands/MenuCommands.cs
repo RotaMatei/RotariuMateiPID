@@ -958,6 +958,66 @@ namespace Framework.ViewModel.Commands
 
         #endregion
 
+        #region Gauss Filtering
+        private ICommand _gaussFilteringCommand;
+        public ICommand GaussFilteringCommand
+        {
+            get
+            {
+                if (_gaussFilteringCommand == null)
+                    _gaussFilteringCommand = new RelayCommand(GaussFiltering);
+                return _gaussFilteringCommand;
+            }
+        }
+
+        private void GaussFiltering(object parameter)
+        {
+            if (!IsImageLoaded())
+                return;
+
+            ClearProcessedCanvas(parameter);
+
+            if (GrayInitialImage != null)
+            {
+                GrayProcessedImage = Filters.GaussFiltering(GrayInitialImage, 3, 5);
+            }
+            else
+            {
+                ColorProcessedImage = Filters.GaussFiltering(ColorInitialImage, 3, 5);
+            }
+        }
+        #endregion
+
+        #region Median Filtering
+        private ICommand _medianFilteringCommand;
+        public ICommand MedianFilteringCommand
+        {
+            get
+            {
+                if (_medianFilteringCommand == null)
+                    _medianFilteringCommand = new RelayCommand(MedianFiltering);
+                return _medianFilteringCommand;
+            }
+        }
+
+        private void MedianFiltering(object parameter)
+        {
+            if (!IsImageLoaded())
+                return;
+
+            ClearProcessedCanvas(parameter);
+
+            if (GrayInitialImage != null)
+            {
+                GrayProcessedImage = Filters.MedianFiltering(GrayInitialImage, 3);
+            }
+            else
+            {
+                var grayInitialImage = Tools.Convert(ColorInitialImage);
+                GrayProcessedImage = Filters.MedianFiltering(grayInitialImage, 3);
+            }
+        }
+        #endregion
         #endregion
 
         #region Morphological operations

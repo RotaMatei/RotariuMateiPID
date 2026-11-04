@@ -201,7 +201,12 @@
                               CommandParameter="{Binding ElementName=processedImageCanvas}"/>
                 </MenuItem>
                 <MenuItem Header="Low-pass">
-
+                    <MenuItem Header="Gauss Filtering"
+                      Command="{Binding Path=MenuCommands.GaussFilteringCommand}"
+                      CommandParameter="{Binding ElementName=processedImageCanvas}"/>
+                    <MenuItem Header="Median Filtering"
+                      Command="{Binding Path=MenuCommands.MedianFilteringCommand}"
+                      CommandParameter="{Binding ElementName=processedImageCanvas}"/>
                 </MenuItem>
                 <MenuItem Header="High-pass">
 

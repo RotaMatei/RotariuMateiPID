@@ -1,6 +1,7 @@
 ﻿using Emgu.CV;
 using Emgu.CV.Structure;
 using System;
+using System.Runtime.Remoting.Messaging;
 
 namespace Algorithms.Sections
 {
@@ -91,6 +92,163 @@ namespace Algorithms.Sections
                 }
                 return result;
             }
+        }
+
+        public static Image<TColor, byte> ApplySeparableFilter_X<TColor>(Image<TColor, byte> inputImage, double[] v)
+            where TColor : struct, IColor
+        {
+            int l = v.Length;
+            double[,] rowMask = new double[1, l];
+            for (int k = 0; k < l; ++k)
+            {
+                rowMask[0, k] = v[k];
+            }
+
+            using (Image<TColor, double> image = inputImage.Convert<TColor, double>())
+            using (Image<TColor, double> rez = ApplyFilter(image, rowMask))
+            {
+                Image<TColor, byte> result = new Image<TColor, byte>(inputImage.Size);
+                for (int y = 0; y < result.Height; ++y)
+                {
+                    for (int x = 0; x < result.Width; ++x)
+                    {
+                        for (int channel = 0; channel < result.NumberOfChannels; ++channel)
+                        {
+                            result.Data[y, x, channel] =
+                                (byte)Math.Max(0, Math.Min(255, rez.Data[y, x, channel] + 0.5));
+                        }
+                    }
+                }
+                return result;
+            }
+        }
+
+        public static Image<TColor, byte> ApplySeparableFilter_Y<TColor>(Image<TColor, byte> inputImage, double[] v)
+            where TColor : struct, IColor
+        {
+            int l = v.Length;
+            double[,] columnMask = new double[l, 1];
+            for (int k = 0; k < l; ++k)
+            {
+                columnMask[k, 0] = v[k];
+            }
+
+            using (Image<TColor, double> image = inputImage.Convert<TColor, double>())
+            using (Image<TColor, double> rez = ApplyFilter(image, columnMask))
+            {
+                Image<TColor, byte> result = new Image<TColor, byte>(inputImage.Size);
+                for (int y = 0; y < result.Height; ++y)
+                {
+                    for (int x = 0; x < result.Width; ++x)
+                    {
+                        for (int channel = 0; channel < result.NumberOfChannels; ++channel)
+                        {
+                            result.Data[y, x, channel] =
+                                (byte)Math.Max(0, Math.Min(255, rez.Data[y, x, channel] + 0.5));
+                        }
+                    }
+                }
+                return result;
+            }
+        }
+        #endregion
+
+        #region Gauss Mask
+        public static double[] GaussMask (double sigma)
+        {
+            int l = (int)Math.Ceiling(4 * sigma);
+            double[] mask = new double[l + 1];
+            if (l % 2 == 0) l++;
+            double sum = 0;
+            for (int r = -l/2; r<= l/2; ++r)
+            {
+                double value = 1/ (Math.Sqrt(2 * Math.PI) * sigma) * Math.Exp(-r * r / (2 * sigma * sigma));
+                mask[r + l/2] = value;
+                sum += value;
+            }
+            if(sum!=0)
+            {
+                for (int i = 0; i < l; ++i)
+                {
+                    mask[i] /= sum;
+                }
+            }
+            return mask;
+        }
+        #endregion
+
+        #region Gauss Filtering
+        public static Image<Gray, byte> GaussFiltering(Image<Gray, byte> inputImage, double sigma_x, double sigma_y)
+        {
+            Image<Gray, byte> resultImage = inputImage.CopyBlank();
+            double[] mask_x = GaussMask(sigma_x);
+            resultImage = ApplySeparableFilter(inputImage, mask_x);
+            double[] mask_y = GaussMask(sigma_y);
+            resultImage = ApplySeparableFilter(resultImage, mask_y);
+            return resultImage;
+        }
+
+        public static Image<Bgr, byte> GaussFiltering(Image<Bgr, byte> inputImage, double sigma_x, double sigma_y)
+        {
+            Image<Bgr, byte> resultImage = inputImage.CopyBlank();
+            double[] mask_x = GaussMask(sigma_x);
+            resultImage = ApplySeparableFilter_X(inputImage, mask_x);
+            double[] mask_y = GaussMask(sigma_y);
+            resultImage = ApplySeparableFilter_Y(resultImage, mask_y);
+            return resultImage;
+        }
+        #endregion
+
+        #region Median
+        public static byte Median(int[] histogram, int l)
+        {
+            double n = Math.Round(Math.Pow(l, 2));
+            int sum = 0;
+            for(int i = 0; i < histogram.Length; i++)
+            {
+                sum += histogram[i];
+                if (sum >= n / 2)
+                {
+                    return (byte)i;
+                }
+            }
+            return 0;
+        }
+
+        public static Image<Gray, byte> MedianFiltering(Image<Gray, byte> inputImage, int l)
+        {
+            if(l % 2 == 0) l++;
+            int r = l/2;
+            Image<Gray, byte> resultImage = inputImage.CopyBlank();
+            int[] histogram = new int[256];
+            Image<Gray, byte> borderImage = new Image<Gray, byte>(inputImage.Width + 2 * r, inputImage.Height + 2 * r);
+            CvInvoke.CopyMakeBorder(inputImage, borderImage, r, r, r, r,
+                Emgu.CV.CvEnum.BorderType.Reflect101);
+
+            for(int y = r; y < borderImage.Height - r; y++)
+            {
+                histogram = new int[256];
+                int x = r;
+                for (int i = -r; i <= r; i++)
+                {
+                    for (int j = -r; j <= r; j++)
+                    {
+                        histogram[borderImage.Data[y + i, x + j, 0]]++;
+                    }
+                }
+
+                resultImage[y-r, x-r] = new Gray(Median(histogram, l));
+                for(x = r + 1; x < borderImage.Width - r; x++)
+                {
+                    for (int i = -r; i <= r; i++)
+                    {
+                        histogram[borderImage.Data[y + i, x - r - 1, 0]]--;
+                        histogram[borderImage.Data[y + i, x + r, 0]]++;
+                    }
+                    resultImage[y - r, x - r] = new Gray(Median(histogram, l));
+                }
+            }
+            return resultImage;
         }
         #endregion
     }
