@@ -1017,7 +1017,137 @@ namespace Framework.ViewModel.Commands
                 GrayProcessedImage = Filters.MedianFiltering(grayInitialImage, 3);
             }
         }
+
+
         #endregion
+
+        #region Laplace Filtering
+        private ICommand _lap1Command;
+        public ICommand Lap1Command
+        {
+            get
+            {
+                if (_lap1Command == null)
+                    _lap1Command = new RelayCommand(Lap1);
+                return _lap1Command;
+            }
+        }
+
+        double[,] lap1 = new double[3, 3]
+        {
+            { 0, -1, 0 },
+            { -1, 4, -1 },
+            { 0, -1, 0 }
+        };
+
+        private void Lap1(object parameter)
+        {
+            if (!IsImageLoaded())
+                return;
+
+            ClearProcessedCanvas(parameter);
+
+            if (GrayInitialImage != null)
+            {
+                GrayProcessedImage = Filters.LaplaceClamp(GrayInitialImage, lap1);
+            }
+            else
+            {
+                var grayInitialImage = Tools.Convert(ColorInitialImage);
+                GrayProcessedImage = Filters.LaplaceClamp(grayInitialImage, lap1);
+            }
+        }
+
+        private ICommand _lap2Command;
+        public ICommand Lap2Command
+        {
+            get
+            {
+                if (_lap2Command == null)
+                    _lap2Command = new RelayCommand(Lap2);
+                return _lap2Command;
+            }
+        }
+
+        double[,] lap2 = new double[3, 3]
+        {
+            { -1, -1, -1 },
+            { -1, 9, -1 },
+            { -1, -1, -1}
+        };
+
+        private void Lap2(object parameter)
+        {
+            if (!IsImageLoaded())
+                return;
+
+            ClearProcessedCanvas(parameter);
+
+            if (GrayInitialImage != null)
+            {
+                GrayProcessedImage = Filters.LaplaceClamp(GrayInitialImage, lap2);
+            }
+            else
+            {
+                var grayInitialImage = Tools.Convert(ColorInitialImage);
+                GrayProcessedImage = Filters.LaplaceClamp(grayInitialImage, lap2);
+            }
+        }
+
+        #endregion
+        #region Laplace Zero Filtering
+        private ICommand _lapZeroCommand;
+        public ICommand LapZeroCommand
+        {
+            get
+            {
+                if (_lapZeroCommand == null)
+                    _lapZeroCommand = new RelayCommand(LapZero);
+                return _lapZeroCommand;
+            }
+        }
+
+
+        double[,] lap3 = new double[3, 3]
+        {
+            { -1, -1, -1 },
+            { -1, 9, -1 },
+            { -1, -1, -1}
+        };
+
+        private void LapZero(object parameter)
+        {
+            if (!IsImageLoaded())
+                return;
+
+            ClearProcessedCanvas(parameter);
+
+            List<string> labels = new List<string>
+            {
+                "Threshold: ",
+            };
+            DialogWindow window = new DialogWindow(_mainVM, labels);
+            window.ShowDialog();
+            List<double> values = window.GetValues();
+            if (values == null)
+                return;
+            byte threshold = (byte)values[0];
+            if (threshold > 145) threshold = 145;
+            if (threshold < 10) threshold = 10;
+
+            if (GrayInitialImage != null)
+            {
+                GrayProcessedImage = Filters.LaplaceZeroCrossing(GrayInitialImage, lap3, threshold);
+            }
+            else
+            {
+                var grayInitialImage = Tools.Convert(ColorInitialImage);
+                GrayProcessedImage = Filters.LaplaceZeroCrossing(grayInitialImage, lap3, threshold);
+            }
+        }
+
+        #endregion
+
         #endregion
 
         #region Morphological operations

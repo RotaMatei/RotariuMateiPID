@@ -175,6 +175,8 @@ namespace Algorithms.Sections
             }
             return mask;
         }
+
+
         #endregion
 
         #region Gauss Filtering
@@ -249,6 +251,76 @@ namespace Algorithms.Sections
                 }
             }
             return resultImage;
+        }
+        #endregion
+
+        #region Laplace
+        public static Image<Gray, byte> LaplaceClamp(Image<Gray, byte> inputImage, double[,] filter)
+        {
+            Image<Gray, byte> borderImage = new Image<Gray, byte>(inputImage.Width + 2 * 1, inputImage.Height + 2 * 1);
+            CvInvoke.CopyMakeBorder(inputImage, borderImage, 1, 1, 1, 1,
+                Emgu.CV.CvEnum.BorderType.Reflect101);
+            Image<Gray, double> result = GaussFiltering(borderImage, 1, 1).Convert<Gray, double>();
+            result = ApplyFilter(result, filter);
+            for(int y = 0; y < result.Height; y++)
+            {
+                for (int x = 0; x < result.Width; x++)
+                {
+                    result.Data[y, x, 0] += 128;
+                    result.Data[y, x, 0] = Math.Max(0, Math.Min(255, result.Data[y, x, 0]));
+                }
+            }
+            return result.Convert<Gray, byte>();
+        }
+
+        public static Image<Gray, byte> LaplaceZeroCrossing(Image<Gray, byte> inputImage, double[,] filter, int T)
+        {
+            int[,] zeroCrossingMaskA1 =
+            {
+                { 0, -1 },
+                { 1, 0 },
+                { -1, 0 },
+                { 0, - 1 }
+            };
+            int[,] zeroCrossingMaskA2 =
+            {
+                { -1, -1 },
+                { 1, 1 },
+                { 1, -1 },
+                { -1, 1 }
+            };
+            int[,] zeroCrossingMaskA3 =
+            {
+                { -1, 0 },
+                { 0, 1 },
+                { 0, -1 },
+                { -1, 0 }
+            };
+
+            Image<Gray, byte> borderImage = new Image<Gray, byte>(inputImage.Width + 2 * 1, inputImage.Height + 2 * 1);
+            CvInvoke.CopyMakeBorder(inputImage, borderImage, 1, 1, 1, 1,
+                Emgu.CV.CvEnum.BorderType.Reflect101);
+            Image<Gray, double> result = GaussFiltering(borderImage, 1, 1).Convert<Gray, double>();
+            result = ApplyFilter(result, filter);
+            for (int y = 1; y < result.Height -1; y++)
+            {
+                for (int x = 1; x < result.Width -1; x++)
+                {
+                    for (int i = 0; i < 4; i++)
+                    {
+                        if ((((result.Data[y + zeroCrossingMaskA1[i, 0], x + zeroCrossingMaskA1[i, 1], 0] > T) &&
+                                (result.Data[y - zeroCrossingMaskA1[i, 0], x - zeroCrossingMaskA1[i, 1], 0] < T))) ||
+                                (((result.Data[y + zeroCrossingMaskA2[i, 0], x + zeroCrossingMaskA2[i, 1], 0] > T) &&
+                                (result.Data[y - zeroCrossingMaskA2[i, 0], x - zeroCrossingMaskA2[i, 1], 0] < T))) ||
+                                (((result.Data[y + zeroCrossingMaskA3[i, 0], x + zeroCrossingMaskA3[i, 1], 0] > T) &&
+                                (result.Data[y - zeroCrossingMaskA3[i, 0], x - zeroCrossingMaskA3[i, 1], 0] < T))))
+                        {
+                            result.Data[y, x, 0] = 255;
+                        }
+                    }
+                }
+            }
+            return result.Convert<Gray, byte>();
         }
         #endregion
     }
