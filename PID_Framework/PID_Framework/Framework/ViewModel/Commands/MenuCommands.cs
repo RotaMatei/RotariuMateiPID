@@ -1151,6 +1151,109 @@ namespace Framework.ViewModel.Commands
         #endregion
 
         #region Morphological operations
+
+        #region Dilation
+        private ICommand _dilationCommand;
+        public ICommand DilationCommand
+        {
+            get
+            {
+                if (_dilationCommand == null)
+                    _dilationCommand = new RelayCommand(p => MorphologicalOperation(p, MorphologicalOperations.Dilation));
+                return _dilationCommand;
+            }
+        }
+        #endregion
+
+        #region Erosion
+        private ICommand _erosionCommand;
+        public ICommand ErosionCommand
+        {
+            get
+            {
+                if (_erosionCommand == null)
+                    _erosionCommand = new RelayCommand(p => MorphologicalOperation(p, MorphologicalOperations.Erosion));
+                return _erosionCommand;
+            }
+        }
+        #endregion
+
+        #region Opening
+        private ICommand _openingCommand;
+        public ICommand OpeningCommand
+        {
+            get
+            {
+                if (_openingCommand == null)
+                    _openingCommand = new RelayCommand(p => MorphologicalOperation(p, MorphologicalOperations.Opening));
+                return _openingCommand;
+            }
+        }
+        #endregion
+
+        #region Closing
+        private ICommand _closingCommand;
+        public ICommand ClosingCommand
+        {
+            get
+            {
+                if (_closingCommand == null)
+                    _closingCommand = new RelayCommand(p => MorphologicalOperation(p, MorphologicalOperations.Closing));
+                return _closingCommand;
+            }
+        }
+        #endregion
+
+        private void MorphologicalOperation(object parameter,
+            Func<Image<Gray, byte>, int, int, int, Image<Gray, byte>> operation)
+        {
+            if (!IsImageLoaded())
+                return;
+
+            List<string> labels = new List<string>
+            {
+                "Threshold T (binarization): ",
+                "Mask height h: ",
+                "Mask width w: ",
+                "Objects (1 = white, 0 = black): "
+            };
+            DialogWindow window = new DialogWindow(_mainVM, labels);
+            window.ShowDialog();
+            List<double> values = window.GetValues();
+            if (values == null)
+                return;
+
+            double threshold = values[0];
+            int h = (int)values[1];
+            int w = (int)values[2];
+            int option = (int)values[3];
+
+            if (threshold < 0 || threshold > 255)
+            {
+                MessageBox.Show("The threshold must be between 0 and 255!");
+                return;
+            }
+            if (h < 1 || w < 1)
+            {
+                MessageBox.Show("The mask dimensions must be at least 1!");
+                return;
+            }
+            if (option != 0 && option != 1)
+            {
+                MessageBox.Show("The option must be 1 (white objects) or 0 (black objects)!");
+                return;
+            }
+
+            ClearProcessedCanvas(parameter);
+
+            // Morphological operations work on binary images, so the image is binarized first (Binary, lab 1)
+            Image<Gray, byte> grayImage = GrayInitialImage ?? Tools.Convert(ColorInitialImage);
+            using (Image<Gray, byte> binaryImage = Tools.ApplyLUT(grayImage, (byte)threshold))
+            {
+                GrayProcessedImage = operation(binaryImage, h, w, option);
+            }
+        }
+
         #endregion
 
         #region Geometric transformations
